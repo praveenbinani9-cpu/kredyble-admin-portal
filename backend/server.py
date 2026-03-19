@@ -90,6 +90,7 @@ def generate_status():
 
 def generate_mock_transactions(count: int = 50):
     transactions = []
+    card_types = ["retail", "business", "corporate"]
     for i in range(count):
         base_amount = random.randint(5000, 500000)
         platform_fee = round(base_amount * 0.02, 2)
@@ -98,11 +99,21 @@ def generate_mock_transactions(count: int = 50):
         pg_gst = round(pg_fee * 0.18, 2)
         total_charged = base_amount + platform_fee + gst_collected
         net_revenue = platform_fee - pg_fee
+        txn_type = random.choice(["vendor", "link"])
+        
+        # Payment mode based on type
+        if txn_type == "vendor":
+            payment_mode = "card"
+            card_type = random.choice(card_types)
+        else:
+            payment_mode = random.choice(["upi", "credit_card", "debit_card", "netbanking"])
+            card_type = random.choice(card_types) if payment_mode in ["credit_card", "debit_card"] else None
         
         transactions.append({
             "id": generate_transaction_id(),
             "user": generate_user_names(),
-            "type": random.choice(["vendor", "link"]),
+            "user_email": f"user{i}@example.com",
+            "type": txn_type,
             "base_amount": base_amount,
             "platform_fee": platform_fee,
             "gst_collected": gst_collected,
@@ -114,7 +125,12 @@ def generate_mock_transactions(count: int = 50):
             "status": generate_status(),
             "beneficiary": generate_company_names(),
             "date": (datetime.now(timezone.utc) - timedelta(days=random.randint(0, 30))).isoformat(),
-            "payment_mode": random.choice(["card", "upi", "netbanking"])
+            "payment_mode": payment_mode,
+            "card_type": card_type,
+            "card_last_four": f"{random.randint(1000, 9999)}" if payment_mode in ["card", "credit_card", "debit_card"] else None,
+            "card_network": random.choice(["Visa", "Mastercard", "Rupay", "Amex"]) if payment_mode in ["card", "credit_card", "debit_card"] else None,
+            "upi_id": f"user{i}@upi" if payment_mode == "upi" else None,
+            "bank_name": random.choice(["HDFC Bank", "ICICI Bank", "SBI", "Axis Bank"]) if payment_mode == "netbanking" else None
         })
     return sorted(transactions, key=lambda x: x['date'], reverse=True)
 
@@ -137,27 +153,44 @@ def generate_mock_payouts(count: int = 30):
 
 def generate_mock_payment_links(count: int = 25):
     links = []
+    payment_modes = ["upi", "credit_card", "debit_card", "netbanking"]
+    card_types = ["retail", "business", "corporate"]
+    
     for i in range(count):
         amount_requested = random.randint(1000, 100000)
         status = random.choice(["paid", "pending", "expired", "partial"])
         amount_paid = amount_requested if status == "paid" else (random.randint(100, amount_requested) if status == "partial" else 0)
+        payment_mode = random.choice(payment_modes) if status in ["paid", "partial"] else None
         
         links.append({
             "id": f"LINK{random.randint(100000, 999999)}",
             "customer": generate_user_names(),
             "customer_email": f"customer{i}@example.com",
+            "customer_phone": f"+91 {random.randint(70000, 99999)} {random.randint(10000, 99999)}",
             "amount_requested": amount_requested,
             "amount_paid": amount_paid,
             "status": status,
             "attempts": random.randint(0, 5),
+            "payment_mode": payment_mode,
+            "card_type": random.choice(card_types) if payment_mode in ["credit_card", "debit_card"] else None,
+            "card_network": random.choice(["Visa", "Mastercard", "Rupay", "Amex"]) if payment_mode in ["credit_card", "debit_card"] else None,
+            "card_last_four": f"{random.randint(1000, 9999)}" if payment_mode in ["credit_card", "debit_card"] else None,
+            "upi_id": f"customer{i}@upi" if payment_mode == "upi" else None,
+            "bank_name": random.choice(["HDFC Bank", "ICICI Bank", "SBI", "Axis Bank"]) if payment_mode == "netbanking" else None,
             "created_at": (datetime.now(timezone.utc) - timedelta(days=random.randint(0, 15))).isoformat(),
             "expires_at": (datetime.now(timezone.utc) + timedelta(days=random.randint(1, 7))).isoformat(),
+            "paid_at": (datetime.now(timezone.utc) - timedelta(days=random.randint(0, 5))).isoformat() if status in ["paid", "partial"] else None,
             "link_url": f"https://pay.kredyble.com/l/{uuid.uuid4().hex[:8]}",
             "timeline": [
                 {"event": "created", "timestamp": (datetime.now(timezone.utc) - timedelta(days=random.randint(5, 15))).isoformat()},
                 {"event": "viewed", "timestamp": (datetime.now(timezone.utc) - timedelta(days=random.randint(2, 4))).isoformat()},
                 {"event": "attempted", "timestamp": (datetime.now(timezone.utc) - timedelta(days=random.randint(1, 2))).isoformat()},
-            ]
+            ],
+            "failure_reasons": [
+                {"reason": "Card declined", "count": random.randint(0, 2)},
+                {"reason": "Insufficient funds", "count": random.randint(0, 1)},
+                {"reason": "Bank timeout", "count": random.randint(0, 1)}
+            ] if status != "paid" else []
         })
     return links
 
@@ -478,14 +511,35 @@ async def get_transactions(
     page: int = 1,
     limit: int = 20,
     status: Optional[str] = None,
-    type: Optional[str] = None
+    type: Optional[str] = None,
+    search: Optional[str] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    card_type: Optional[str] = None,
+    payment_mode: Optional[str] = None
 ):
     all_transactions = generate_mock_transactions(100)
     
-    if status:
+    if status and status != 'all':
         all_transactions = [t for t in all_transactions if t["status"] == status]
-    if type:
+    if type and type != 'all':
         all_transactions = [t for t in all_transactions if t["type"] == type]
+    if card_type and card_type != 'all':
+        all_transactions = [t for t in all_transactions if t.get("card_type") == card_type]
+    if payment_mode and payment_mode != 'all':
+        all_transactions = [t for t in all_transactions if t.get("payment_mode") == payment_mode]
+    if search:
+        search_lower = search.lower()
+        all_transactions = [t for t in all_transactions if 
+            search_lower in t["id"].lower() or 
+            search_lower in t["user"].lower() or
+            search_lower in t.get("beneficiary", "").lower() or
+            search_lower in t.get("user_email", "").lower()
+        ]
+    if start_date:
+        all_transactions = [t for t in all_transactions if t["date"] >= start_date]
+    if end_date:
+        all_transactions = [t for t in all_transactions if t["date"] <= end_date]
     
     total = len(all_transactions)
     start = (page - 1) * limit

@@ -1,4 +1,4 @@
-import { X, Copy, ExternalLink } from 'lucide-react';
+import { X, Copy, ExternalLink, CreditCard, Smartphone, Building2 } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '../ui/sheet';
 import { Button } from '../ui/button';
 import { Separator } from '../ui/separator';
@@ -10,6 +10,41 @@ export function TransactionDrawer({ transaction, open, onClose }) {
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
+  };
+
+  const getPaymentModeIcon = (mode) => {
+    switch (mode) {
+      case 'upi':
+        return <Smartphone className="h-4 w-4 text-purple-600" />;
+      case 'card':
+      case 'credit_card':
+      case 'debit_card':
+        return <CreditCard className="h-4 w-4 text-blue-600" />;
+      case 'netbanking':
+        return <Building2 className="h-4 w-4 text-emerald-600" />;
+      default:
+        return <CreditCard className="h-4 w-4 text-slate-600" />;
+    }
+  };
+
+  const getPaymentModeLabel = (mode) => {
+    const labels = {
+      'card': 'Card',
+      'credit_card': 'Credit Card',
+      'debit_card': 'Debit Card',
+      'upi': 'UPI',
+      'netbanking': 'Net Banking'
+    };
+    return labels[mode] || mode;
+  };
+
+  const getCardTypeLabel = (type) => {
+    const labels = {
+      'retail': 'Retail',
+      'business': 'Business',
+      'corporate': 'Corporate'
+    };
+    return labels[type] || type;
   };
 
   return (
@@ -50,21 +85,78 @@ export function TransactionDrawer({ transaction, open, onClose }) {
                 <span className="breakdown-label">User</span>
                 <span className="breakdown-value">{transaction.user}</span>
               </div>
+              {transaction.user_email && (
+                <div className="breakdown-row">
+                  <span className="breakdown-label">Email</span>
+                  <span className="breakdown-value">{transaction.user_email}</span>
+                </div>
+              )}
               <div className="breakdown-row">
                 <span className="breakdown-label">Beneficiary</span>
                 <span className="breakdown-value">{transaction.beneficiary}</span>
               </div>
               <div className="breakdown-row">
                 <span className="breakdown-label">Type</span>
-                <span className="breakdown-value capitalize">{transaction.type}</span>
-              </div>
-              <div className="breakdown-row">
-                <span className="breakdown-label">Payment Mode</span>
-                <span className="breakdown-value uppercase">{transaction.payment_mode}</span>
+                <span className={`text-xs px-2 py-1 rounded font-medium ${
+                  transaction.type === 'vendor' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'
+                }`}>
+                  {transaction.type === 'vendor' ? 'Vendor Payment' : 'Payment Link'}
+                </span>
               </div>
               <div className="breakdown-row">
                 <span className="breakdown-label">Date</span>
                 <span className="breakdown-value">{formatDate(transaction.date, { format: 'long' })}</span>
+              </div>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Payment Method Details */}
+          <div className="drawer-section">
+            <h4 className="drawer-section-title">Payment Method</h4>
+            <div className="p-4 border rounded-lg">
+              <div className="flex items-center gap-3 mb-3">
+                {getPaymentModeIcon(transaction.payment_mode)}
+                <span className="font-medium">{getPaymentModeLabel(transaction.payment_mode)}</span>
+              </div>
+              <div className="space-y-2 text-sm">
+                {transaction.card_last_four && (
+                  <>
+                    <div className="flex justify-between">
+                      <span className="text-slate-600">Card Number</span>
+                      <span className="font-medium">****{transaction.card_last_four}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-600">Network</span>
+                      <span className="font-medium">{transaction.card_network}</span>
+                    </div>
+                  </>
+                )}
+                {transaction.card_type && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-600">Card Type</span>
+                    <span className={`text-xs px-2 py-1 rounded font-medium ${
+                      transaction.card_type === 'corporate' ? 'bg-amber-100 text-amber-800' :
+                      transaction.card_type === 'business' ? 'bg-emerald-100 text-emerald-800' :
+                      'bg-slate-100 text-slate-800'
+                    }`}>
+                      {getCardTypeLabel(transaction.card_type)}
+                    </span>
+                  </div>
+                )}
+                {transaction.upi_id && (
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">UPI ID</span>
+                    <span className="font-medium">{transaction.upi_id}</span>
+                  </div>
+                )}
+                {transaction.bank_name && (
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">Bank</span>
+                    <span className="font-medium">{transaction.bank_name}</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
