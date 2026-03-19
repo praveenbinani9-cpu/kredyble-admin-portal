@@ -1,0 +1,220 @@
+{
+  "summary": {
+    "total": 35,
+    "passed": 34,
+    "failed": 1,
+    "success_rate": 97.14285714285714
+  },
+  "results": [
+    {
+      "test": "Valid Login",
+      "success": true,
+      "message": "Status 200 - Response received",
+      "timestamp": "2026-03-19T18:40:30.419543"
+    },
+    {
+      "test": "Token Extraction",
+      "success": true,
+      "message": "JWT token retrieved successfully",
+      "timestamp": "2026-03-19T18:40:30.534064"
+    },
+    {
+      "test": "Invalid Login",
+      "success": true,
+      "message": "Status 401 - Response received",
+      "timestamp": "2026-03-19T18:40:30.672445"
+    },
+    {
+      "test": "Token Verification",
+      "success": true,
+      "message": "Status 200 - Response received",
+      "timestamp": "2026-03-19T18:40:30.790363"
+    },
+    {
+      "test": "Dashboard Stats",
+      "success": true,
+      "message": "Status 200 - Response received",
+      "timestamp": "2026-03-19T18:40:30.900386"
+    },
+    {
+      "test": "Volume Chart Data",
+      "success": true,
+      "message": "Status 200 - Response received",
+      "timestamp": "2026-03-19T18:40:31.030025"
+    },
+    {
+      "test": "Revenue Chart Data",
+      "success": true,
+      "message": "Status 200 - Response received",
+      "timestamp": "2026-03-19T18:40:31.176080"
+    },
+    {
+      "test": "Get Transactions",
+      "success": true,
+      "message": "Status 200 - Response received",
+      "timestamp": "2026-03-19T18:40:31.332910"
+    },
+    {
+      "test": "Get Transactions with Pagination",
+      "success": true,
+      "message": "Status 200 - Response received",
+      "timestamp": "2026-03-19T18:40:31.491370"
+    },
+    {
+      "test": "Filter by Status",
+      "success": true,
+      "message": "Status 200 - Response received",
+      "timestamp": "2026-03-19T18:40:31.631032"
+    },
+    {
+      "test": "Filter by Type",
+      "success": true,
+      "message": "Status 200 - Response received",
+      "timestamp": "2026-03-19T18:40:31.750540"
+    },
+    {
+      "test": "Transaction Detail",
+      "success": true,
+      "message": "Status 200 - Response received",
+      "timestamp": "2026-03-19T18:40:31.868461"
+    },
+    {
+      "test": "Collections Stats",
+      "success": true,
+      "message": "Status 200 - Response received",
+      "timestamp": "2026-03-19T18:40:31.997025"
+    },
+    {
+      "test": "Collections Flow",
+      "success": true,
+      "message": "Status 200 - Response received",
+      "timestamp": "2026-03-19T18:40:32.105075"
+    },
+    {
+      "test": "Get Payouts",
+      "success": true,
+      "message": "Status 200 - Response received",
+      "timestamp": "2026-03-19T18:40:32.258075"
+    },
+    {
+      "test": "Payouts Stats",
+      "success": true,
+      "message": "Status 200 - Response received",
+      "timestamp": "2026-03-19T18:40:32.377809"
+    },
+    {
+      "test": "Filter Payouts by Status",
+      "success": true,
+      "message": "Status 200 - Response received",
+      "timestamp": "2026-03-19T18:40:32.483400"
+    },
+    {
+      "test": "Get Payment Links",
+      "success": true,
+      "message": "Status 200 - Response received",
+      "timestamp": "2026-03-19T18:40:32.586418"
+    },
+    {
+      "test": "Payment Links Stats",
+      "success": true,
+      "message": "Status 200 - Response received",
+      "timestamp": "2026-03-19T18:40:32.718701"
+    },
+    {
+      "test": "Payment Link Detail",
+      "success": true,
+      "message": "Status 200 - Response received",
+      "timestamp": "2026-03-19T18:40:32.843892"
+    },
+    {
+      "test": "Get Users",
+      "success": true,
+      "message": "Status 200 - Response received",
+      "timestamp": "2026-03-19T18:40:32.947420"
+    },
+    {
+      "test": "User Detail",
+      "success": true,
+      "message": "Status 200 - Response received",
+      "timestamp": "2026-03-19T18:40:33.046931"
+    },
+    {
+      "test": "Get Beneficiaries",
+      "success": true,
+      "message": "Status 200 - Response received",
+      "timestamp": "2026-03-19T18:40:33.163338"
+    },
+    {
+      "test": "Get Memberships",
+      "success": true,
+      "message": "Status 200 - Response received",
+      "timestamp": "2026-03-19T18:40:33.258151"
+    },
+    {
+      "test": "Get Offers",
+      "success": true,
+      "message": "Status 200 - Response received",
+      "timestamp": "2026-03-19T18:40:33.408979"
+    },
+    {
+      "test": "Toggle Offer",
+      "success": true,
+      "message": "Status 200 - Response received",
+      "timestamp": "2026-03-19T18:40:33.525663"
+    },
+    {
+      "test": "Revenue Analytics",
+      "success": true,
+      "message": "Status 200 - Response received",
+      "timestamp": "2026-03-19T18:40:33.630779"
+    },
+    {
+      "test": "Revenue Trend",
+      "success": true,
+      "message": "Status 200 - Response received",
+      "timestamp": "2026-03-19T18:40:33.734818"
+    },
+    {
+      "test": "PG Charges",
+      "success": true,
+      "message": "Status 200 - Response received",
+      "timestamp": "2026-03-19T18:40:33.861488"
+    },
+    {
+      "test": "PG Charges Summary",
+      "success": true,
+      "message": "Status 200 - Response received",
+      "timestamp": "2026-03-19T18:40:33.973002"
+    },
+    {
+      "test": "GST Summary",
+      "success": true,
+      "message": "Status 200 - Response received",
+      "timestamp": "2026-03-19T18:40:34.077676"
+    },
+    {
+      "test": "GST Transactions",
+      "success": true,
+      "message": "Status 200 - Response received",
+      "timestamp": "2026-03-19T18:40:34.192688"
+    },
+    {
+      "test": "Risk Alerts",
+      "success": true,
+      "message": "Status 200 - Response received",
+      "timestamp": "2026-03-19T18:40:34.318121"
+    },
+    {
+      "test": "Risk Summary",
+      "success": true,
+      "message": "Status 200 - Response received",
+      "timestamp": "2026-03-19T18:40:34.415958"
+    },
+    {
+      "test": "Risk Alert Action",
+      "success": false,
+      "message": "Expected 200, got 422 - {'detail': [{'type': 'missing', 'loc': ['query', 'action'], 'msg': 'Field required', 'input': None, 'url': 'https://errors.pydantic.dev/2.12/v/missing'}]}",
+      "timestamp": "2026-03-19T18:40:34.550073"
+    }
+  ]
+}
