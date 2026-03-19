@@ -318,6 +318,8 @@ async def verify_auth(payload: dict = Depends(verify_token)):
 async def get_dashboard_stats():
     return {
         "total_collected": 15789234,
+        "vendor_payments_collected": 8500000,
+        "links_collected": 7289234,
         "vendor_payouts": 12456000,
         "platform_revenue": 315784,
         "pg_charges": 284205,

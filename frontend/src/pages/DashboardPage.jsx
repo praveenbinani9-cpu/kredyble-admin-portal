@@ -5,7 +5,9 @@ import {
   TrendingUp, 
   PiggyBank,
   Receipt,
-  Calculator
+  Calculator,
+  Link2,
+  Building2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { KPICard } from '../components/features/KPICard';
@@ -66,16 +68,16 @@ export default function DashboardPage() {
 
   const kpiData = [
     { title: 'Total Collected', value: stats?.total_collected, icon: Wallet, change: '+12.5% vs last month', changeType: 'positive' },
-    { title: 'Vendor Payouts', value: stats?.vendor_payouts, icon: CreditCard, change: '+8.2% vs last month', changeType: 'positive' },
+    { title: 'Via Vendor Payments', value: stats?.vendor_payments_collected, icon: Building2, change: '54% of total', changeType: 'neutral' },
+    { title: 'Via Payment Links', value: stats?.links_collected, icon: Link2, change: '46% of total', changeType: 'neutral' },
     { title: 'Platform Revenue', value: stats?.platform_revenue, icon: TrendingUp, change: '+15.3% vs last month', changeType: 'positive', variant: 'highlight' },
     { title: 'PG Charges', value: stats?.pg_charges, icon: Receipt, change: '+7.1% vs last month', changeType: 'negative' },
-    { title: 'Net Profit', value: stats?.net_profit, icon: PiggyBank, change: '+23.4% vs last month', changeType: 'positive' },
     { title: 'GST Payable', value: stats?.gst_payable, icon: Calculator, change: 'Due: 20th Jan', changeType: 'neutral' },
   ];
 
   const pieData = [
-    { name: 'Vendor Payments', value: 8500000 },
-    { name: 'Payment Links', value: 7289234 },
+    { name: 'Vendor Payments', value: stats?.vendor_payments_collected || 8500000 },
+    { name: 'Payment Links', value: stats?.links_collected || 7289234 },
   ];
 
   const CustomTooltip = ({ active, payload, label }) => {
