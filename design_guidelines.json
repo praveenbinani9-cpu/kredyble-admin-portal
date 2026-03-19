@@ -1,0 +1,219 @@
+{
+  "brand_identity": {
+    "app_name": "Kredyble",
+    "theme_mode": "light",
+    "emotional_archetype": "Swiss & High-Contrast (Fintech Trust)",
+    "colors": {
+      "primary": "#0F172A",
+      "primary_foreground": "#FFFFFF",
+      "secondary": "#F1F5F9",
+      "secondary_foreground": "#0F172A",
+      "accent": "#10B981",
+      "accent_foreground": "#FFFFFF",
+      "destructive": "#EF4444",
+      "muted": "#64748B",
+      "background": "#FFFFFF",
+      "surface": "#F8FAFC",
+      "border": "#E2E8F0"
+    },
+    "typography": {
+      "font_family_heading": "Inter, sans-serif",
+      "font_family_body": "Inter, sans-serif",
+      "scaling": {
+        "h1": "text-3xl font-bold tracking-tight",
+        "h2": "text-2xl font-semibold tracking-tight",
+        "h3": "text-xl font-semibold tracking-tight",
+        "body": "text-sm font-normal leading-relaxed",
+        "small": "text-xs font-medium text-muted-foreground"
+      }
+    },
+    "radius": "0.5rem",
+    "shadows": {
+      "card": "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
+      "hover": "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)"
+    }
+  },
+  "layout_system": {
+    "grid_structure": "grid-cols-12",
+    "sidebar_width": "w-64",
+    "header_height": "h-16",
+    "container_padding": "p-6 md:p-8",
+    "gap_size": "gap-6",
+    "max_width": "max-w-[1440px] mx-auto"
+  },
+  "components_strategy": {
+    "buttons": {
+      "primary": "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm",
+      "secondary": "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+      "ghost": "hover:bg-accent hover:text-accent-foreground",
+      "outline": "border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+    },
+    "cards": {
+      "default": "bg-card text-card-foreground rounded-lg border shadow-sm",
+      "interactive": "hover:shadow-md transition-shadow duration-200 cursor-pointer"
+    },
+    "tables": {
+      "style": "w-full text-sm text-left",
+      "header": "h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0",
+      "row": "border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted",
+      "cell": "p-4 align-middle [&:has([role=checkbox])]:pr-0"
+    },
+    "badges": {
+      "success": "bg-emerald-100 text-emerald-800 border-emerald-200",
+      "warning": "bg-amber-100 text-amber-800 border-amber-200",
+      "error": "bg-red-100 text-red-800 border-red-200",
+      "neutral": "bg-slate-100 text-slate-800 border-slate-200"
+    }
+  },
+  "assets": {
+    "images": {
+      "avatars": [
+        {
+          "url": "https://images.unsplash.com/photo-1576558656222-ba66febe3dec?auto=format&fit=crop&w=256&h=256",
+          "alt": "Male Admin Profile",
+          "category": "user_avatar"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1762522926157-bcc04bf0b10a?auto=format&fit=crop&w=256&h=256",
+          "alt": "Male User Profile",
+          "category": "user_avatar"
+        },
+        {
+          "url": "https://images.pexels.com/photos/30004324/pexels-photo-30004324.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=256&w=256",
+          "alt": "Female Executive Profile",
+          "category": "user_avatar"
+        },
+        {
+          "url": "https://images.pexels.com/photos/30004323/pexels-photo-30004323.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=256&w=256",
+          "alt": "Female Manager Profile",
+          "category": "user_avatar"
+        }
+      ],
+      "backgrounds": [
+        {
+          "url": "https://images.unsplash.com/photo-1663497653290-1b8f327096f7?auto=format&fit=crop&w=1200",
+          "alt": "Abstract Minimal Circle",
+          "category": "card_bg"
+        }
+      ]
+    },
+    "icons": {
+      "library": "lucide-react",
+      "preferred_set": ["LayoutDashboard", "ArrowRightLeft", "Wallet", "CreditCard", "Users", "ShieldAlert", "Banknote", "Receipt", "PieChart", "Settings", "LogOut", "Bell", "Search", "Filter"]
+    }
+  },
+  "pages": {
+    "login": {
+      "path": "/login",
+      "layout": "centered-card",
+      "elements": ["Logo", "EmailInput", "PasswordInput", "SignInButton", "ForgotPasswordLink"],
+      "background": "bg-slate-50"
+    },
+    "dashboard": {
+      "path": "/",
+      "layout": "sidebar-header-grid",
+      "sections": [
+        {
+          "name": "KPI Cards",
+          "type": "grid",
+          "columns": 3,
+          "content": ["Total Revenue", "Active Vendors", "Payouts Processed"]
+        },
+        {
+          "name": "Transaction Volume",
+          "type": "chart",
+          "chart_type": "bar",
+          "width": "full"
+        },
+        {
+          "name": "Revenue vs Cost",
+          "type": "chart",
+          "chart_type": "area",
+          "width": "full"
+        }
+      ]
+    },
+    "collections": {
+      "path": "/collections",
+      "layout": "sidebar-header-grid",
+      "description": "Financial control dashboard with flow visualization",
+      "sections": ["Flow Diagram (Pipeline)", "Collection Metrics", "Recent Collections Table"]
+    },
+    "transactions": {
+      "path": "/transactions",
+      "layout": "sidebar-header-grid",
+      "description": "Data-heavy table with side drawer details",
+      "components": ["DataTable", "FilterBar", "Pagination", "TransactionDetailDrawer"]
+    },
+    "payouts": {
+      "path": "/payouts",
+      "layout": "sidebar-header-grid",
+      "components": ["Tabs (Completed, In Process, Failed)", "PayoutsTable", "TimelineView"]
+    },
+    "payment_links": {
+      "path": "/payment-links",
+      "layout": "sidebar-header-grid",
+      "components": ["LinkMetrics", "LinksTable", "CopyLinkButton", "StatusBadge"]
+    },
+    "vendor_payments": {
+      "path": "/vendor-payments",
+      "layout": "sidebar-header-grid",
+      "components": ["VendorTable", "BreakdownColumns (Base, Fee, Tax)", "PayButton"]
+    },
+    "offers": {
+      "path": "/offers",
+      "layout": "sidebar-header-grid",
+      "components": ["PricingCardGrid", "ToggleSwitch (Active/Inactive)", "CreateOfferButton"]
+    },
+    "memberships": {
+      "path": "/memberships",
+      "layout": "sidebar-header-grid",
+      "components": ["MembershipTable", "StatusBadge", "PlanDetails"]
+    },
+    "users_kyb": {
+      "path": "/users",
+      "layout": "sidebar-header-grid",
+      "components": ["UserList", "UserProfileHeader", "KYBStatusBadge", "DocumentList"]
+    },
+    "revenue": {
+      "path": "/revenue",
+      "layout": "sidebar-header-grid",
+      "components": ["RevenueChart (Line)", "BreakdownPieChart", "TopPerformersList"]
+    },
+    "pg_charges": {
+      "path": "/pg-charges",
+      "layout": "sidebar-header-grid",
+      "components": ["ChargesTable", "SummaryCard"]
+    },
+    "gst_tax": {
+      "path": "/gst-tax",
+      "layout": "sidebar-header-grid",
+      "components": ["TaxSummaryCards", "GSTTable", "DownloadReportButton"]
+    },
+    "risk": {
+      "path": "/risk",
+      "layout": "sidebar-header-grid",
+      "components": ["AlertTable", "RiskScoreBadge", "ActionButtons (Freeze, Ignore)"]
+    }
+  },
+  "universal_guidelines": {
+    "spacing": "Use comfortable padding (p-6+) for containers. Ensure data tables are dense (p-3) but headers are spacious.",
+    "accessibility": "Ensure text contrast ratio of 4.5:1. Use aria-labels on icon buttons.",
+    "interactions": "Hover states on all rows. Clickable numbers drill down to filtered views.",
+    "visuals": "No gradients. Use 1px borders for separation. Soft shadows only.",
+    "charts": "Use Recharts. Tooltips must be styled with Shadcn card styles.",
+    "testing": "All interactive elements must have data-testid attributes."
+  },
+  "instructions_to_main_agent": [
+    "Implement the SidebarLayout as a wrapper for all protected routes.",
+    "Use Shadcn 'Sheet' component for the Transaction Details side drawer.",
+    "Use Recharts for all data visualization.",
+    "Mock data should be realistic fintech data (IDs, Amounts, Statuses).",
+    "Ensure all amounts are formatted with currency (e.g., ₹10,230.50).",
+    "Use 'date-fns' for date formatting.",
+    "Implement a 'useAuth' hook for the JWT logic (mocked or real).",
+    "Follow the file structure: /components/layout, /components/features, /pages.",
+    "For the 'Flow Visualization' in Collections, use a simple SVG or CSS-based step progress bar if a library is too heavy, or a Recharts Sankey if feasible.",
+    "IMPORTANT: Do not use gradients for backgrounds. Stick to white/gray/slate."
+  ]
+}
