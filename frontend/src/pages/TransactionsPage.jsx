@@ -33,13 +33,14 @@ import { formatCurrency, formatDate } from '../lib/utils';
 export default function TransactionsPage() {
   const [searchParams] = useSearchParams();
   const initialSearch = searchParams.get('search') || '';
+  const initialType = searchParams.get('type') || 'all';
   
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [statusFilter, setStatusFilter] = useState('all');
-  const [typeFilter, setTypeFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState(initialType);
   const [cardTypeFilter, setCardTypeFilter] = useState('all');
   const [paymentModeFilter, setPaymentModeFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState(initialSearch);
@@ -48,12 +49,16 @@ export default function TransactionsPage() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [dateRange, setDateRange] = useState({ from: null, to: null });
 
-  // Update search when URL changes
+  // Update search and type when URL changes
   useEffect(() => {
     const urlSearch = searchParams.get('search') || '';
+    const urlType = searchParams.get('type') || 'all';
     if (urlSearch !== searchQuery) {
       setSearchQuery(urlSearch);
       setDebouncedSearch(urlSearch);
+    }
+    if (urlType !== typeFilter) {
+      setTypeFilter(urlType);
     }
   }, [searchParams]);
 

@@ -299,9 +299,12 @@ def generate_mock_users(count: int = 20):
 def generate_mock_beneficiaries(count: int = 15):
     beneficiaries = []
     for i in range(count):
+        state_code = random.choice(["27", "29", "06", "09", "33"])  # MH, KA, HR, UP, TN
         beneficiaries.append({
             "id": f"BEN{random.randint(100000, 999999)}",
             "name": generate_company_names(),
+            "gst_number": f"{state_code}{''.join([str(random.randint(0,9)) for _ in range(5)])}{''.join([chr(random.randint(65,90)) for _ in range(4)])}{random.randint(1,9)}Z{random.randint(1,9)}",
+            "pan_number": f"{''.join([chr(random.randint(65,90)) for _ in range(5)])}{random.randint(1000,9999)}{''.join([chr(random.randint(65,90)) for _ in range(1)])}",
             "account_number": f"****{random.randint(1000, 9999)}",
             "ifsc": f"HDFC000{random.randint(100, 999)}",
             "bank_name": random.choice(["HDFC Bank", "ICICI Bank", "SBI", "Axis Bank"]),
@@ -676,7 +679,9 @@ async def get_beneficiaries(search: Optional[str] = None):
             if (search_lower in b["id"].lower() or
                 search_lower in b["name"].lower() or
                 search_lower in b["bank_name"].lower() or
-                search_lower in b["account_number"].lower()):
+                search_lower in b["account_number"].lower() or
+                search_lower in b.get("gst_number", "").lower() or
+                search_lower in b.get("pan_number", "").lower()):
                 filtered.append(b)
                 continue
             # Amount search

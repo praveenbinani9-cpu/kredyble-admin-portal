@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Users, Building2, Banknote, Plus } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import { Users, Building2, Banknote, Plus, Search, FileText } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
 import {
   Table,
   TableBody,
@@ -15,13 +17,18 @@ import { beneficiariesAPI } from '../lib/api';
 import { formatCurrency, formatDate } from '../lib/utils';
 
 export default function BeneficiariesPage() {
+  const [searchParams] = useSearchParams();
+  const initialSearch = searchParams.get('search') || '';
+  
   const [beneficiaries, setBeneficiaries] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
-        const response = await beneficiariesAPI.getAll();
+        const response = await beneficiariesAPI.getAll(searchQuery || undefined);
         setBeneficiaries(response.data.beneficiaries);
       } catch (error) {
         console.error('Failed to fetch beneficiaries:', error);
@@ -31,7 +38,15 @@ export default function BeneficiariesPage() {
     };
 
     fetchData();
-  }, []);
+  }, [searchQuery]);
+
+  // Update search when URL changes
+  useEffect(() => {
+    const urlSearch = searchParams.get('search') || '';
+    if (urlSearch !== searchQuery) {
+      setSearchQuery(urlSearch);
+    }
+  }, [searchParams]);
 
   const totalReceived = beneficiaries.reduce((sum, b) => sum + b.total_received, 0);
   const activeBeneficiaries = beneficiaries.filter(b => b.status === 'active').length;
@@ -93,6 +108,22 @@ export default function BeneficiariesPage() {
         </Card>
       </div>
 
+      {/* Search */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input
+              placeholder="Search by name, GST, PAN, bank, amount..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+              data-testid="search-beneficiaries"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Beneficiaries Table */}
       <Card>
         <CardContent className="p-0">
@@ -106,6 +137,8 @@ export default function BeneficiariesPage() {
                 <TableRow>
                   <TableHead>Beneficiary ID</TableHead>
                   <TableHead>Name</TableHead>
+                  <TableHead>GST Number</TableHead>
+                  <TableHead>PAN</TableHead>
                   <TableHead>Bank Details</TableHead>
                   <TableHead className="text-right">Total Received</TableHead>
                   <TableHead className="text-right">Transactions</TableHead>
@@ -114,28 +147,45 @@ export default function BeneficiariesPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {beneficiaries.map((beneficiary) => (
-                  <TableRow key={beneficiary.id} data-testid={`beneficiary-row-${beneficiary.id}`}>
-                    <TableCell className="font-mono font-medium">{beneficiary.id}</TableCell>
-                    <TableCell className="font-medium">{beneficiary.name}</TableCell>
-                    <TableCell>
-                      <div className="text-sm">
-                        <p>{beneficiary.bank_name}</p>
-                        <p className="text-slate-500">{beneficiary.account_number} | {beneficiary.ifsc}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right font-medium currency">
-                      {formatCurrency(beneficiary.total_received)}
-                    </TableCell>
-                    <TableCell className="text-right">{beneficiary.transactions_count}</TableCell>
-                    <TableCell>
-                      <StatusBadge status={beneficiary.status} />
-                    </TableCell>
-                    <TableCell className="text-slate-500">
-                      {formatDate(beneficiary.added_at)}
+                {beneficiaries.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={9} className="text-center py-8 text-slate-500">
+                      No beneficiaries found matching your search
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  beneficiaries.map((beneficiary) => (
+                    <TableRow key={beneficiary.id} data-testid={`beneficiary-row-${beneficiary.id}`}>
+                      <TableCell className="font-mono font-medium">{beneficiary.id}</TableCell>
+                      <TableCell className="font-medium">{beneficiary.name}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <FileText className="h-4 w-4 text-slate-400" />
+                          <span className="font-mono text-sm">{beneficiary.gst_number}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <span className="font-mono text-sm">{beneficiary.pan_number}</span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          <p>{beneficiary.bank_name}</p>
+                          <p className="text-slate-500">{beneficiary.account_number} | {beneficiary.ifsc}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right font-medium currency">
+                        {formatCurrency(beneficiary.total_received)}
+                      </TableCell>
+                      <TableCell className="text-right">{beneficiary.transactions_count}</TableCell>
+                      <TableCell>
+                        <StatusBadge status={beneficiary.status} />
+                      </TableCell>
+                      <TableCell className="text-slate-500">
+                        {formatDate(beneficiary.added_at)}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           )}

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Wallet, 
   CreditCard, 
@@ -32,6 +33,7 @@ import {
 const COLORS = ['#0f172a', '#10b981', '#3b82f6', '#f59e0b'];
 
 export default function DashboardPage() {
+  const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [volumeData, setVolumeData] = useState([]);
   const [revenueData, setRevenueData] = useState([]);
@@ -67,12 +69,55 @@ export default function DashboardPage() {
   }
 
   const kpiData = [
-    { title: 'Total Collected', value: stats?.total_collected, icon: Wallet, change: '+12.5% vs last month', changeType: 'positive' },
-    { title: 'Via Vendor Payments', value: stats?.vendor_payments_collected, icon: Building2, change: '54% of total', changeType: 'neutral' },
-    { title: 'Via Payment Links', value: stats?.links_collected, icon: Link2, change: '46% of total', changeType: 'neutral' },
-    { title: 'Platform Revenue', value: stats?.platform_revenue, icon: TrendingUp, change: '+15.3% vs last month', changeType: 'positive', variant: 'highlight' },
-    { title: 'PG Charges', value: stats?.pg_charges, icon: Receipt, change: '+7.1% vs last month', changeType: 'negative' },
-    { title: 'GST Payable', value: stats?.gst_payable, icon: Calculator, change: 'Due: 20th Jan', changeType: 'neutral' },
+    { 
+      title: 'Total Collected', 
+      value: stats?.total_collected, 
+      icon: Wallet, 
+      change: '+12.5% vs last month', 
+      changeType: 'positive',
+      onClick: () => navigate('/transactions')
+    },
+    { 
+      title: 'Via Vendor Payments', 
+      value: stats?.vendor_payments_collected, 
+      icon: Building2, 
+      change: '54% of total', 
+      changeType: 'neutral',
+      onClick: () => navigate('/transactions?type=vendor')
+    },
+    { 
+      title: 'Via Payment Links', 
+      value: stats?.links_collected, 
+      icon: Link2, 
+      change: '46% of total', 
+      changeType: 'neutral',
+      onClick: () => navigate('/payment-links')
+    },
+    { 
+      title: 'Platform Revenue', 
+      value: stats?.platform_revenue, 
+      icon: TrendingUp, 
+      change: '+15.3% vs last month', 
+      changeType: 'positive', 
+      variant: 'highlight',
+      onClick: () => navigate('/revenue')
+    },
+    { 
+      title: 'PG Charges', 
+      value: stats?.pg_charges, 
+      icon: Receipt, 
+      change: '+7.1% vs last month', 
+      changeType: 'negative',
+      onClick: () => navigate('/pg-charges')
+    },
+    { 
+      title: 'GST Payable', 
+      value: stats?.gst_payable, 
+      icon: Calculator, 
+      change: 'Due: 20th Jan', 
+      changeType: 'neutral',
+      onClick: () => navigate('/gst')
+    },
   ];
 
   const pieData = [
@@ -101,7 +146,7 @@ export default function DashboardPage() {
       {/* Page Header */}
       <div>
         <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
-        <p className="text-slate-500">Overview of your platform metrics</p>
+        <p className="text-slate-500">Overview of your platform metrics (Click on any card to see details)</p>
       </div>
 
       {/* KPI Cards */}
@@ -114,7 +159,7 @@ export default function DashboardPage() {
       {/* Charts Row */}
       <div className="charts-grid">
         {/* Daily Transaction Volume */}
-        <Card>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/transactions')}>
           <CardHeader>
             <CardTitle className="text-base font-semibold">Daily Transaction Volume</CardTitle>
           </CardHeader>
@@ -140,7 +185,7 @@ export default function DashboardPage() {
         </Card>
 
         {/* Revenue vs PG Cost */}
-        <Card>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/revenue')}>
           <CardHeader>
             <CardTitle className="text-base font-semibold">Revenue vs PG Cost</CardTitle>
           </CardHeader>
@@ -168,22 +213,31 @@ export default function DashboardPage() {
 
       {/* Split View */}
       <div className="grid grid-cols-3 gap-6">
-        <Card className="col-span-2">
+        <Card className="col-span-2 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/collections')}>
           <CardHeader>
             <CardTitle className="text-base font-semibold">Recent Activity Summary</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
-                <div>
+                <div 
+                  className="cursor-pointer hover:bg-slate-100 p-2 rounded-lg transition-colors"
+                  onClick={(e) => { e.stopPropagation(); navigate('/transactions'); }}
+                >
                   <p className="text-sm font-medium">Total Transactions Today</p>
                   <p className="text-2xl font-bold">{stats?.total_transactions}</p>
                 </div>
-                <div className="text-right">
+                <div 
+                  className="text-right cursor-pointer hover:bg-slate-100 p-2 rounded-lg transition-colors"
+                  onClick={(e) => { e.stopPropagation(); navigate('/users'); }}
+                >
                   <p className="text-sm font-medium">Active Users</p>
                   <p className="text-2xl font-bold">{stats?.active_users}</p>
                 </div>
-                <div className="text-right">
+                <div 
+                  className="text-right cursor-pointer hover:bg-slate-100 p-2 rounded-lg transition-colors"
+                  onClick={(e) => { e.stopPropagation(); navigate('/payouts'); }}
+                >
                   <p className="text-sm font-medium">Pending Settlements</p>
                   <p className="text-2xl font-bold text-amber-600">{formatCurrency(stats?.pending_settlements, { compact: true })}</p>
                 </div>
@@ -219,7 +273,11 @@ export default function DashboardPage() {
             </div>
             <div className="flex justify-center gap-4 mt-2">
               {pieData.map((entry, index) => (
-                <div key={entry.name} className="flex items-center gap-2">
+                <div 
+                  key={entry.name} 
+                  className="flex items-center gap-2 cursor-pointer hover:opacity-70"
+                  onClick={() => navigate(index === 0 ? '/transactions?type=vendor' : '/payment-links')}
+                >
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index] }} />
                   <span className="text-xs text-slate-600">{entry.name}</span>
                 </div>
