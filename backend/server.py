@@ -164,19 +164,102 @@ def generate_mock_payment_links(count: int = 25):
 def generate_mock_users(count: int = 20):
     users = []
     statuses = ["active", "pending_kyb", "suspended", "verified"]
+    approval_statuses = ["pending_approval", "approved", "rejected"]
+    business_types = ["proprietorship", "partnership", "pvt_ltd", "llp"]
+    
     for i in range(count):
+        is_first_time = random.choice([True, False])
+        business_type = random.choice(business_types)
+        
+        # Base documents for all business types
+        base_documents = [
+            {
+                "type": "gst_certificate",
+                "label": "GST Certificate",
+                "status": random.choice(["pending", "approved", "rejected"]),
+                "submitted_at": (datetime.now(timezone.utc) - timedelta(days=random.randint(1, 30))).isoformat(),
+                "rejection_reason": "GST number mismatch" if random.random() > 0.8 else None,
+                "file_url": f"https://storage.kredyble.com/docs/gst_{i}.pdf"
+            },
+            {
+                "type": "aadhar_card",
+                "label": "Aadhar Card",
+                "status": random.choice(["pending", "approved", "rejected"]),
+                "submitted_at": (datetime.now(timezone.utc) - timedelta(days=random.randint(1, 30))).isoformat(),
+                "rejection_reason": "Aadhar not clear" if random.random() > 0.85 else None,
+                "file_url": f"https://storage.kredyble.com/docs/aadhar_{i}.pdf"
+            },
+            {
+                "type": "pan_card",
+                "label": "PAN Card",
+                "status": random.choice(["pending", "approved", "rejected"]),
+                "submitted_at": (datetime.now(timezone.utc) - timedelta(days=random.randint(1, 30))).isoformat(),
+                "rejection_reason": "PAN details mismatch" if random.random() > 0.85 else None,
+                "file_url": f"https://storage.kredyble.com/docs/pan_{i}.pdf"
+            },
+            {
+                "type": "bank_account",
+                "label": "Bank Account Statement",
+                "status": random.choice(["pending", "approved", "rejected"]),
+                "submitted_at": (datetime.now(timezone.utc) - timedelta(days=random.randint(1, 30))).isoformat(),
+                "rejection_reason": "Statement older than 3 months" if random.random() > 0.9 else None,
+                "file_url": f"https://storage.kredyble.com/docs/bank_{i}.pdf"
+            }
+        ]
+        
+        # Additional documents based on business type
+        if business_type == "partnership":
+            base_documents.append({
+                "type": "partnership_deed",
+                "label": "Partnership Deed",
+                "status": random.choice(["pending", "approved", "rejected"]),
+                "submitted_at": (datetime.now(timezone.utc) - timedelta(days=random.randint(1, 30))).isoformat(),
+                "rejection_reason": "Deed not notarized" if random.random() > 0.85 else None,
+                "file_url": f"https://storage.kredyble.com/docs/deed_{i}.pdf"
+            })
+        elif business_type in ["pvt_ltd", "llp"]:
+            base_documents.append({
+                "type": "cin_number",
+                "label": "CIN Certificate",
+                "status": random.choice(["pending", "approved", "rejected"]),
+                "submitted_at": (datetime.now(timezone.utc) - timedelta(days=random.randint(1, 30))).isoformat(),
+                "rejection_reason": "CIN not matching MCA records" if random.random() > 0.85 else None,
+                "file_url": f"https://storage.kredyble.com/docs/cin_{i}.pdf"
+            })
+        
+        # Generate proprietor/director details
+        num_proprietors = 1 if business_type == "proprietorship" else random.randint(2, 4)
+        proprietors = []
+        for p in range(num_proprietors):
+            proprietors.append({
+                "name": generate_user_names(),
+                "designation": "Proprietor" if business_type == "proprietorship" else ("Partner" if business_type == "partnership" else "Director"),
+                "aadhar_verified": random.choice([True, False]),
+                "pan_verified": random.choice([True, False]),
+                "din_number": f"DIN{random.randint(10000000, 99999999)}" if business_type in ["pvt_ltd", "llp"] else None
+            })
+        
         users.append({
             "id": f"USR{random.randint(100000, 999999)}",
             "name": generate_user_names(),
             "email": f"user{i}@example.com",
             "phone": f"+91 {random.randint(70000, 99999)} {random.randint(10000, 99999)}",
+            "business_name": generate_company_names(),
+            "business_type": business_type,
             "status": random.choice(statuses),
             "kyb_status": random.choice(["verified", "pending", "rejected", "not_submitted"]),
+            "approval_status": random.choice(approval_statuses) if is_first_time else "approved",
+            "is_first_time_user": is_first_time,
             "total_transactions": random.randint(5, 200),
             "total_volume": random.randint(50000, 5000000),
             "membership": random.choice(["standard", "premium", "enterprise", None]),
             "joined_at": (datetime.now(timezone.utc) - timedelta(days=random.randint(30, 365))).isoformat(),
-            "linked_cards": random.randint(0, 4)
+            "linked_cards": random.randint(0, 4),
+            "documents": base_documents,
+            "proprietors": proprietors,
+            "last_active": (datetime.now(timezone.utc) - timedelta(hours=random.randint(1, 720))).isoformat(),
+            "drop_off_stage": random.choice([None, "registration", "kyb_upload", "kyb_verification", "first_transaction", "payment_setup"]) if random.random() > 0.6 else None,
+            "last_error": random.choice([None, "KYB_UPLOAD_FAILED", "PAYMENT_DECLINED", "SESSION_TIMEOUT", "DOCUMENT_REJECTED", "VERIFICATION_FAILED"]) if random.random() > 0.5 else None
         })
     return users
 
@@ -476,6 +559,82 @@ async def get_users():
     users = generate_mock_users(25)
     return {"users": users, "total": len(users)}
 
+@api_router.get("/users/analytics/dropoff")
+async def get_user_dropoff_analytics():
+    """Get funnel analytics showing where users drop off"""
+    return {
+        "funnel": [
+            {"stage": "Registration Started", "users": 1000, "percentage": 100},
+            {"stage": "Registration Completed", "users": 850, "percentage": 85},
+            {"stage": "KYB Documents Uploaded", "users": 680, "percentage": 68},
+            {"stage": "KYB Verification Pending", "users": 612, "percentage": 61.2},
+            {"stage": "KYB Approved", "users": 520, "percentage": 52},
+            {"stage": "First Transaction", "users": 416, "percentage": 41.6},
+            {"stage": "Active User", "users": 342, "percentage": 34.2}
+        ],
+        "drop_off_reasons": [
+            {"stage": "registration", "count": 150, "percentage": 15, "top_errors": ["SESSION_TIMEOUT", "VALIDATION_ERROR"]},
+            {"stage": "kyb_upload", "count": 170, "percentage": 17, "top_errors": ["UPLOAD_FAILED", "FILE_TOO_LARGE", "INVALID_FORMAT"]},
+            {"stage": "kyb_verification", "count": 68, "percentage": 6.8, "top_errors": ["DOCUMENT_REJECTED", "VERIFICATION_FAILED"]},
+            {"stage": "kyb_approval", "count": 92, "percentage": 9.2, "top_errors": ["APPROVAL_PENDING", "DOCUMENT_MISMATCH"]},
+            {"stage": "first_transaction", "count": 104, "percentage": 10.4, "top_errors": ["PAYMENT_DECLINED", "INSUFFICIENT_LIMIT"]},
+            {"stage": "payment_setup", "count": 74, "percentage": 7.4, "top_errors": ["CARD_DECLINED", "BANK_ERROR"]}
+        ],
+        "error_breakdown": [
+            {"error": "DOCUMENT_REJECTED", "count": 89, "description": "Document quality or validity issues"},
+            {"error": "KYB_UPLOAD_FAILED", "count": 67, "description": "Upload timeout or file issues"},
+            {"error": "PAYMENT_DECLINED", "count": 54, "description": "Card/bank payment failures"},
+            {"error": "SESSION_TIMEOUT", "count": 48, "description": "User session expired"},
+            {"error": "VERIFICATION_FAILED", "count": 42, "description": "Auto-verification failed"},
+            {"error": "VALIDATION_ERROR", "count": 38, "description": "Form validation errors"}
+        ],
+        "weekly_trend": [
+            {"week": "Week 1", "registrations": 250, "completions": 85, "drop_offs": 165},
+            {"week": "Week 2", "registrations": 280, "completions": 98, "drop_offs": 182},
+            {"week": "Week 3", "registrations": 245, "completions": 82, "drop_offs": 163},
+            {"week": "Week 4", "registrations": 225, "completions": 77, "drop_offs": 148}
+        ]
+    }
+
+@api_router.get("/users/analytics/journey")
+async def get_user_journey_analytics():
+    """Get user journey analytics - where users spend time and leave"""
+    return {
+        "page_analytics": [
+            {"page": "Dashboard", "avg_time_seconds": 45, "bounce_rate": 5.2, "exit_rate": 8.1},
+            {"page": "KYB Upload", "avg_time_seconds": 180, "bounce_rate": 22.5, "exit_rate": 28.4},
+            {"page": "Document Verification", "avg_time_seconds": 120, "bounce_rate": 15.3, "exit_rate": 18.7},
+            {"page": "Payment Setup", "avg_time_seconds": 90, "bounce_rate": 18.2, "exit_rate": 24.1},
+            {"page": "First Transaction", "avg_time_seconds": 60, "bounce_rate": 12.4, "exit_rate": 15.8},
+            {"page": "Vendor Payment", "avg_time_seconds": 75, "bounce_rate": 8.5, "exit_rate": 10.2}
+        ],
+        "session_data": {
+            "avg_session_duration": 420,
+            "avg_pages_per_session": 4.2,
+            "returning_user_rate": 68.5
+        },
+        "exit_points": [
+            {"point": "KYB Document Upload", "percentage": 28.4, "users": 284},
+            {"point": "Payment Setup", "percentage": 24.1, "users": 241},
+            {"point": "Document Verification Wait", "percentage": 18.7, "users": 187},
+            {"point": "First Transaction Attempt", "percentage": 15.8, "users": 158},
+            {"point": "Other Pages", "percentage": 13.0, "users": 130}
+        ],
+        "device_breakdown": [
+            {"device": "Desktop", "users": 580, "completion_rate": 42.5},
+            {"device": "Mobile", "users": 320, "completion_rate": 28.1},
+            {"device": "Tablet", "users": 100, "completion_rate": 35.0}
+        ]
+    }
+
+@api_router.get("/users/pending-approval")
+async def get_pending_approval_users():
+    """Get first-time users pending document approval"""
+    users = generate_mock_users(15)
+    pending_users = [u for u in users if u.get("approval_status") == "pending_approval" or 
+                    any(d.get("status") == "pending" for d in u.get("documents", []))]
+    return {"users": pending_users[:10], "total": len(pending_users)}
+
 @api_router.get("/users/{user_id}")
 async def get_user_detail(user_id: str):
     users = generate_mock_users(1)
@@ -483,7 +642,53 @@ async def get_user_detail(user_id: str):
     user["id"] = user_id
     user["transactions"] = generate_mock_transactions(10)
     user["applied_offers"] = ["Standard Plan"]
+    user["activity_log"] = [
+        {"action": "Document Uploaded", "document": "GST Certificate", "timestamp": (datetime.now(timezone.utc) - timedelta(days=2)).isoformat()},
+        {"action": "Document Uploaded", "document": "PAN Card", "timestamp": (datetime.now(timezone.utc) - timedelta(days=2)).isoformat()},
+        {"action": "Document Uploaded", "document": "Aadhar Card", "timestamp": (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()},
+        {"action": "KYB Submitted", "document": None, "timestamp": (datetime.now(timezone.utc) - timedelta(hours=12)).isoformat()},
+    ]
     return user
+
+class DocumentApprovalRequest(BaseModel):
+    action: str  # "approve" or "reject"
+    rejection_reason: Optional[str] = None
+
+@api_router.put("/users/{user_id}/documents/{document_type}/approve")
+async def approve_document(user_id: str, document_type: str, request: DocumentApprovalRequest):
+    """Approve or reject a specific document for a user"""
+    if request.action == "approve":
+        return {
+            "success": True,
+            "message": f"Document {document_type} approved for user {user_id}",
+            "new_status": "approved"
+        }
+    else:
+        return {
+            "success": True,
+            "message": f"Document {document_type} rejected for user {user_id}",
+            "new_status": "rejected",
+            "rejection_reason": request.rejection_reason
+        }
+
+@api_router.put("/users/{user_id}/approve")
+async def approve_user(user_id: str):
+    """Approve a first-time user after all documents are verified"""
+    return {
+        "success": True,
+        "message": f"User {user_id} approved successfully",
+        "new_status": "approved"
+    }
+
+@api_router.put("/users/{user_id}/reject")
+async def reject_user(user_id: str, reason: str = "Documents not satisfactory"):
+    """Reject a first-time user"""
+    return {
+        "success": True,
+        "message": f"User {user_id} rejected",
+        "new_status": "rejected",
+        "reason": reason
+    }
 
 # ==================== MEMBERSHIPS ENDPOINTS ====================
 

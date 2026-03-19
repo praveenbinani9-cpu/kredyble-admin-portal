@@ -79,6 +79,13 @@ export const beneficiariesAPI = {
 export const usersAPI = {
   getAll: () => api.get('/users'),
   getById: (id) => api.get(`/users/${id}`),
+  getPendingApproval: () => api.get('/users/pending-approval'),
+  getDropoffAnalytics: () => api.get('/users/analytics/dropoff'),
+  getJourneyAnalytics: () => api.get('/users/analytics/journey'),
+  approveDocument: (userId, documentType, data) => 
+    api.put(`/users/${userId}/documents/${documentType}/approve`, data),
+  approveUser: (userId) => api.put(`/users/${userId}/approve`),
+  rejectUser: (userId, reason) => api.put(`/users/${userId}/reject`, null, { params: { reason } }),
 };
 
 // Memberships APIs
