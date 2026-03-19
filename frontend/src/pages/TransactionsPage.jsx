@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Search, Filter, ChevronLeft, ChevronRight, Calendar, CreditCard } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Input } from '../components/ui/input';
@@ -30,6 +31,9 @@ import { transactionsAPI } from '../lib/api';
 import { formatCurrency, formatDate } from '../lib/utils';
 
 export default function TransactionsPage() {
+  const [searchParams] = useSearchParams();
+  const initialSearch = searchParams.get('search') || '';
+  
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -38,11 +42,20 @@ export default function TransactionsPage() {
   const [typeFilter, setTypeFilter] = useState('all');
   const [cardTypeFilter, setCardTypeFilter] = useState('all');
   const [paymentModeFilter, setPaymentModeFilter] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
+  const [debouncedSearch, setDebouncedSearch] = useState(initialSearch);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [dateRange, setDateRange] = useState({ from: null, to: null });
+
+  // Update search when URL changes
+  useEffect(() => {
+    const urlSearch = searchParams.get('search') || '';
+    if (urlSearch !== searchQuery) {
+      setSearchQuery(urlSearch);
+      setDebouncedSearch(urlSearch);
+    }
+  }, [searchParams]);
 
   // Debounce search input
   useEffect(() => {

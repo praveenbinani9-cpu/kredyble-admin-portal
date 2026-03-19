@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, Bell, Calendar, ChevronDown } from 'lucide-react';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
@@ -16,29 +17,100 @@ import {
   PopoverTrigger,
 } from '../ui/popover';
 import { Calendar as CalendarComponent } from '../ui/calendar';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '../ui/command';
 import { useAuth } from '../../hooks/useAuth';
 import { getInitials, formatDate } from '../../lib/utils';
 
 export function Header() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [date, setDate] = useState(new Date());
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  const searchOptions = [
+    { label: 'Search Transactions', value: 'transactions', path: '/transactions' },
+    { label: 'Search Payment Links', value: 'payment-links', path: '/payment-links' },
+    { label: 'Search Users', value: 'users', path: '/users' },
+    { label: 'Search Beneficiaries', value: 'beneficiaries', path: '/beneficiaries' },
+    { label: 'Search Payouts', value: 'payouts', path: '/payouts' },
+  ];
+
+  const handleSearch = (e) => {
+    if (e.key === 'Enter' && searchQuery.trim()) {
+      // Default to transactions search
+      navigate(`/transactions?search=${encodeURIComponent(searchQuery)}`);
+      setSearchOpen(false);
+    }
+  };
+
+  const handleSearchSelect = (option) => {
+    if (searchQuery.trim()) {
+      navigate(`${option.path}?search=${encodeURIComponent(searchQuery)}`);
+    } else {
+      navigate(option.path);
+    }
+    setSearchOpen(false);
+    setSearchQuery('');
+  };
 
   return (
     <header className="top-header" data-testid="header">
       {/* Search */}
       <div className="flex items-center gap-4 flex-1 max-w-md">
-        <div className="relative w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input
-            type="search"
-            placeholder="Search transactions, users..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-slate-50 border-slate-200"
-            data-testid="header-search"
-          />
-        </div>
+        <Popover open={searchOpen} onOpenChange={setSearchOpen}>
+          <PopoverTrigger asChild>
+            <div className="relative w-full">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Input
+                type="search"
+                placeholder="Search transactions, users..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setSearchOpen(true)}
+                onKeyDown={handleSearch}
+                className="pl-10 bg-slate-50 border-slate-200"
+                data-testid="header-search"
+              />
+            </div>
+          </PopoverTrigger>
+          <PopoverContent className="w-[400px] p-0" align="start">
+            <Command>
+              <CommandInput 
+                placeholder="Type to search..." 
+                value={searchQuery}
+                onValueChange={setSearchQuery}
+              />
+              <CommandList>
+                <CommandEmpty>
+                  {searchQuery ? `Press Enter to search "${searchQuery}" in Transactions` : 'Type to search...'}
+                </CommandEmpty>
+                <CommandGroup heading="Search in">
+                  {searchOptions.map((option) => (
+                    <CommandItem
+                      key={option.value}
+                      onSelect={() => handleSearchSelect(option)}
+                      className="cursor-pointer"
+                    >
+                      <Search className="mr-2 h-4 w-4" />
+                      {option.label}
+                      {searchQuery && (
+                        <span className="ml-2 text-slate-500">for "{searchQuery}"</span>
+                      )}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
       </div>
 
       {/* Right side */}

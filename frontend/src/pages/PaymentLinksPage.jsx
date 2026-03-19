@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Link2, CheckCircle, Clock, XCircle, Copy, ExternalLink, Search, Calendar, CreditCard, Smartphone, Building2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
@@ -37,16 +38,27 @@ import { paymentLinksAPI } from '../lib/api';
 import { formatCurrency, formatDate, formatPercent } from '../lib/utils';
 
 export default function PaymentLinksPage() {
+  const [searchParams] = useSearchParams();
+  const initialSearch = searchParams.get('search') || '';
+  
   const [links, setLinks] = useState([]);
   const [filteredLinks, setFilteredLinks] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedLink, setSelectedLink] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [statusFilter, setStatusFilter] = useState('all');
   const [paymentModeFilter, setPaymentModeFilter] = useState('all');
   const [dateRange, setDateRange] = useState({ from: null, to: null });
+
+  // Update search when URL changes
+  useEffect(() => {
+    const urlSearch = searchParams.get('search') || '';
+    if (urlSearch !== searchQuery) {
+      setSearchQuery(urlSearch);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const fetchData = async () => {

@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { 
   UserCircle, CheckCircle, Clock, AlertTriangle, CreditCard, 
   TrendingDown, FileText, Check, X, Eye, Building2, Users as UsersIcon,
-  BarChart3, AlertCircle
+  BarChart3, AlertCircle, Search
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Input } from '../components/ui/input';
@@ -43,7 +44,6 @@ import { StatusBadge } from '../components/features/StatusBadge';
 import { usersAPI } from '../lib/api';
 import { formatCurrency, formatDate, getInitials } from '../lib/utils';
 import { Avatar, AvatarFallback } from '../components/ui/avatar';
-import { Search } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -63,12 +63,15 @@ import {
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
 export default function UsersPage() {
+  const [searchParams] = useSearchParams();
+  const initialSearch = searchParams.get('search') || '';
+  
   const [users, setUsers] = useState([]);
   const [pendingUsers, setPendingUsers] = useState([]);
   const [dropoffData, setDropoffData] = useState(null);
   const [journeyData, setJourneyData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [selectedUser, setSelectedUser] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [userDetail, setUserDetail] = useState(null);
@@ -76,6 +79,14 @@ export default function UsersPage() {
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
   const [selectedDocument, setSelectedDocument] = useState(null);
+
+  // Update search when URL changes
+  useEffect(() => {
+    const urlSearch = searchParams.get('search') || '';
+    if (urlSearch !== searchQuery) {
+      setSearchQuery(urlSearch);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     fetchAllData();
