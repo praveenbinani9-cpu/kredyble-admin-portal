@@ -115,14 +115,48 @@ export default function UsersPage() {
   const handleApproveDocument = async (userId, documentType) => {
     try {
       await usersAPI.approveDocument(userId, documentType, { action: 'approve' });
-      // Refresh data
-      fetchAllData();
+      
+      // Update local state instead of refetching all data
       if (userDetail) {
-        const response = await usersAPI.getById(userId);
-        setUserDetail(response.data);
+        const updatedDocs = userDetail.documents.map(doc => 
+          doc.type === documentType ? { ...doc, status: 'approved' } : doc
+        );
+        setUserDetail({ ...userDetail, documents: updatedDocs });
       }
+      
+      // Also update the selected user
+      if (selectedUser) {
+        const updatedDocs = selectedUser.documents?.map(doc => 
+          doc.type === documentType ? { ...doc, status: 'approved' } : doc
+        ) || [];
+        setSelectedUser({ ...selectedUser, documents: updatedDocs });
+      }
+      
+      // Update users list
+      setUsers(users.map(u => {
+        if (u.id === userId) {
+          const updatedDocs = u.documents?.map(doc => 
+            doc.type === documentType ? { ...doc, status: 'approved' } : doc
+          ) || [];
+          return { ...u, documents: updatedDocs };
+        }
+        return u;
+      }));
+      
+      // Update pending users list
+      setPendingUsers(pendingUsers.map(u => {
+        if (u.id === userId) {
+          const updatedDocs = u.documents?.map(doc => 
+            doc.type === documentType ? { ...doc, status: 'approved' } : doc
+          ) || [];
+          return { ...u, documents: updatedDocs };
+        }
+        return u;
+      }));
+      
     } catch (error) {
       console.error('Failed to approve document:', error);
+      alert('Failed to approve document. Please try again.');
     }
   };
 
@@ -133,21 +167,53 @@ export default function UsersPage() {
         action: 'reject',
         rejection_reason: rejectReason 
       });
+      
+      // Update local state instead of refetching
+      if (userDetail) {
+        const updatedDocs = userDetail.documents.map(doc => 
+          doc.type === selectedDocument.type ? { ...doc, status: 'rejected', rejection_reason: rejectReason } : doc
+        );
+        setUserDetail({ ...userDetail, documents: updatedDocs });
+      }
+      
+      if (selectedUser) {
+        const updatedDocs = selectedUser.documents?.map(doc => 
+          doc.type === selectedDocument.type ? { ...doc, status: 'rejected', rejection_reason: rejectReason } : doc
+        ) || [];
+        setSelectedUser({ ...selectedUser, documents: updatedDocs });
+      }
+      
       setRejectDialogOpen(false);
       setRejectReason('');
       setSelectedDocument(null);
-      fetchAllData();
     } catch (error) {
       console.error('Failed to reject document:', error);
+      alert('Failed to reject document. Please try again.');
     }
   };
 
   const handleApproveUser = async (userId) => {
     try {
       await usersAPI.approveUser(userId);
-      fetchAllData();
+      
+      // Update local state
+      setUsers(users.map(u => 
+        u.id === userId ? { ...u, approval_status: 'approved' } : u
+      ));
+      
+      setPendingUsers(pendingUsers.filter(u => u.id !== userId));
+      
+      if (selectedUser && selectedUser.id === userId) {
+        setSelectedUser({ ...selectedUser, approval_status: 'approved' });
+      }
+      
+      if (userDetail && userDetail.id === userId) {
+        setUserDetail({ ...userDetail, approval_status: 'approved' });
+      }
+      
     } catch (error) {
       console.error('Failed to approve user:', error);
+      alert('Failed to approve user. Please try again.');
     }
   };
 
