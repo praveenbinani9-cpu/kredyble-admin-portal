@@ -1,5 +1,5 @@
 import { X, Copy, ExternalLink } from 'lucide-react';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '../ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '../ui/sheet';
 import { Button } from '../ui/button';
 import { Separator } from '../ui/separator';
 import { StatusBadge } from './StatusBadge';
@@ -19,6 +19,7 @@ export function TransactionDrawer({ transaction, open, onClose }) {
           <div className="flex items-center justify-between">
             <SheetTitle className="text-lg font-semibold">Transaction Details</SheetTitle>
           </div>
+          <SheetDescription>Complete breakdown of transaction {transaction.id}</SheetDescription>
         </SheetHeader>
 
         {/* Transaction ID */}

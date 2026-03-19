@@ -15,6 +15,7 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
+  SheetDescription,
 } from '../components/ui/sheet';
 import { StatusBadge } from '../components/features/StatusBadge';
 import { KPICard } from '../components/features/KPICard';
@@ -161,6 +162,7 @@ export default function PaymentLinksPage() {
             <>
               <SheetHeader className="pb-4">
                 <SheetTitle className="text-lg font-semibold">Payment Link Details</SheetTitle>
+                <SheetDescription>Details for payment link {selectedLink.id}</SheetDescription>
               </SheetHeader>
 
               <div className="space-y-6">

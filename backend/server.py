@@ -604,9 +604,14 @@ async def get_risk_summary():
         "blocked_today": 2
     }
 
+class RiskActionRequest(BaseModel):
+    action: str
+
 @api_router.put("/risk/alerts/{alert_id}/action")
-async def risk_alert_action(alert_id: str, action: str):
-    return {"success": True, "message": f"Alert {alert_id} marked as {action}"}
+async def risk_alert_action(alert_id: str, request: RiskActionRequest = None, action: Optional[str] = None):
+    # Support both query param and body
+    action_value = action or (request.action if request else "reviewed")
+    return {"success": True, "message": f"Alert {alert_id} marked as {action_value}"}
 
 # ==================== ROOT ENDPOINT ====================
 

@@ -15,6 +15,7 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
+  SheetDescription,
 } from '../components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { StatusBadge } from '../components/features/StatusBadge';
@@ -228,6 +229,7 @@ export default function UsersPage() {
             <>
               <SheetHeader className="pb-4">
                 <SheetTitle className="text-lg font-semibold">User Profile</SheetTitle>
+                <SheetDescription>Profile details for {selectedUser.name}</SheetDescription>
               </SheetHeader>
 
               <div className="space-y-6">
