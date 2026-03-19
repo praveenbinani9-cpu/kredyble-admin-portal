@@ -529,13 +529,32 @@ async def get_transactions(
     if payment_mode and payment_mode != 'all':
         all_transactions = [t for t in all_transactions if t.get("payment_mode") == payment_mode]
     if search:
-        search_lower = search.lower()
-        all_transactions = [t for t in all_transactions if 
-            search_lower in t["id"].lower() or 
-            search_lower in t["user"].lower() or
-            search_lower in t.get("beneficiary", "").lower() or
-            search_lower in t.get("user_email", "").lower()
-        ]
+        search_lower = search.lower().strip()
+        filtered = []
+        for t in all_transactions:
+            # Text search
+            if (search_lower in t["id"].lower() or 
+                search_lower in t["user"].lower() or
+                search_lower in t.get("beneficiary", "").lower() or
+                search_lower in t.get("user_email", "").lower()):
+                filtered.append(t)
+                continue
+            # Amount search - try to match numbers
+            try:
+                search_amount = float(search_lower.replace(',', '').replace('₹', ''))
+                if (t["base_amount"] == search_amount or
+                    t["total_charged"] == search_amount or
+                    t["platform_fee"] == search_amount or
+                    t["gst_collected"] == search_amount or
+                    t["pg_fee"] == search_amount or
+                    t["net_revenue"] == search_amount or
+                    # Partial match - amount contains the search number
+                    str(int(t["base_amount"])).startswith(str(int(search_amount))) or
+                    str(int(t["total_charged"])).startswith(str(int(search_amount)))):
+                    filtered.append(t)
+            except (ValueError, TypeError):
+                pass
+        all_transactions = filtered
     if start_date:
         all_transactions = [t for t in all_transactions if t["date"] >= start_date]
     if end_date:
@@ -562,10 +581,31 @@ async def get_transaction_detail(transaction_id: str):
 # ==================== PAYOUTS ENDPOINTS ====================
 
 @api_router.get("/payouts")
-async def get_payouts(status: Optional[str] = None):
+async def get_payouts(status: Optional[str] = None, search: Optional[str] = None):
     payouts = generate_mock_payouts(50)
     if status:
         payouts = [p for p in payouts if p["status"] == status]
+    
+    if search:
+        search_lower = search.lower().strip()
+        filtered = []
+        for p in payouts:
+            # Text search
+            if (search_lower in p["id"].lower() or
+                search_lower in p["beneficiary"].lower() or
+                search_lower in p["linked_transaction"].lower()):
+                filtered.append(p)
+                continue
+            # Amount search
+            try:
+                search_amount = float(search_lower.replace(',', '').replace('₹', ''))
+                if (p["amount"] == search_amount or
+                    str(int(p["amount"])).startswith(str(int(search_amount)))):
+                    filtered.append(p)
+            except (ValueError, TypeError):
+                pass
+        payouts = filtered
+    
     return {"payouts": payouts, "total": len(payouts)}
 
 @api_router.get("/payouts/stats")
@@ -579,8 +619,31 @@ async def get_payouts_stats():
 # ==================== PAYMENT LINKS ENDPOINTS ====================
 
 @api_router.get("/payment-links")
-async def get_payment_links():
+async def get_payment_links(search: Optional[str] = None):
     links = generate_mock_payment_links(30)
+    
+    if search:
+        search_lower = search.lower().strip()
+        filtered = []
+        for link in links:
+            # Text search
+            if (search_lower in link["id"].lower() or
+                search_lower in link["customer"].lower() or
+                search_lower in link["customer_email"].lower()):
+                filtered.append(link)
+                continue
+            # Amount search
+            try:
+                search_amount = float(search_lower.replace(',', '').replace('₹', ''))
+                if (link["amount_requested"] == search_amount or
+                    link["amount_paid"] == search_amount or
+                    str(int(link["amount_requested"])).startswith(str(int(search_amount))) or
+                    str(int(link["amount_paid"])).startswith(str(int(search_amount)))):
+                    filtered.append(link)
+            except (ValueError, TypeError):
+                pass
+        links = filtered
+    
     return {"links": links, "total": len(links)}
 
 @api_router.get("/payment-links/stats")
@@ -602,15 +665,60 @@ async def get_payment_link_detail(link_id: str):
 # ==================== BENEFICIARIES ENDPOINTS ====================
 
 @api_router.get("/beneficiaries")
-async def get_beneficiaries():
+async def get_beneficiaries(search: Optional[str] = None):
     beneficiaries = generate_mock_beneficiaries(20)
+    
+    if search:
+        search_lower = search.lower().strip()
+        filtered = []
+        for b in beneficiaries:
+            # Text search
+            if (search_lower in b["id"].lower() or
+                search_lower in b["name"].lower() or
+                search_lower in b["bank_name"].lower() or
+                search_lower in b["account_number"].lower()):
+                filtered.append(b)
+                continue
+            # Amount search
+            try:
+                search_amount = float(search_lower.replace(',', '').replace('₹', ''))
+                if (b["total_received"] == search_amount or
+                    str(int(b["total_received"])).startswith(str(int(search_amount)))):
+                    filtered.append(b)
+            except (ValueError, TypeError):
+                pass
+        beneficiaries = filtered
+    
     return {"beneficiaries": beneficiaries, "total": len(beneficiaries)}
 
 # ==================== USERS & KYB ENDPOINTS ====================
 
 @api_router.get("/users")
-async def get_users():
+async def get_users(search: Optional[str] = None):
     users = generate_mock_users(25)
+    
+    if search:
+        search_lower = search.lower().strip()
+        filtered = []
+        for u in users:
+            # Text search
+            if (search_lower in u["id"].lower() or
+                search_lower in u["name"].lower() or
+                search_lower in u["email"].lower() or
+                search_lower in u.get("business_name", "").lower() or
+                search_lower in u.get("business_type", "").lower()):
+                filtered.append(u)
+                continue
+            # Amount search
+            try:
+                search_amount = float(search_lower.replace(',', '').replace('₹', ''))
+                if (u["total_volume"] == search_amount or
+                    str(int(u["total_volume"])).startswith(str(int(search_amount)))):
+                    filtered.append(u)
+            except (ValueError, TypeError):
+                pass
+        users = filtered
+    
     return {"users": users, "total": len(users)}
 
 @api_router.get("/users/analytics/dropoff")

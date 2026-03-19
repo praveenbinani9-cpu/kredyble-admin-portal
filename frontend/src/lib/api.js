@@ -59,25 +59,25 @@ export const transactionsAPI = {
 
 // Payouts APIs
 export const payoutsAPI = {
-  getAll: (status) => api.get('/payouts', { params: { status } }),
+  getAll: (status, search) => api.get('/payouts', { params: { status, search } }),
   getStats: () => api.get('/payouts/stats'),
 };
 
 // Payment Links APIs
 export const paymentLinksAPI = {
-  getAll: () => api.get('/payment-links'),
+  getAll: (search) => api.get('/payment-links', { params: { search } }),
   getStats: () => api.get('/payment-links/stats'),
   getById: (id) => api.get(`/payment-links/${id}`),
 };
 
 // Beneficiaries APIs
 export const beneficiariesAPI = {
-  getAll: () => api.get('/beneficiaries'),
+  getAll: (search) => api.get('/beneficiaries', { params: { search } }),
 };
 
 // Users APIs
 export const usersAPI = {
-  getAll: () => api.get('/users'),
+  getAll: (search) => api.get('/users', { params: { search } }),
   getById: (id) => api.get(`/users/${id}`),
   getPendingApproval: () => api.get('/users/pending-approval'),
   getDropoffAnalytics: () => api.get('/users/analytics/dropoff'),

@@ -90,13 +90,13 @@ export default function UsersPage() {
 
   useEffect(() => {
     fetchAllData();
-  }, []);
+  }, [searchQuery]);
 
   const fetchAllData = async () => {
     setLoading(true);
     try {
       const [usersRes, pendingRes, dropoffRes, journeyRes] = await Promise.all([
-        usersAPI.getAll(),
+        usersAPI.getAll(searchQuery || undefined),
         usersAPI.getPendingApproval(),
         usersAPI.getDropoffAnalytics(),
         usersAPI.getJourneyAnalytics()

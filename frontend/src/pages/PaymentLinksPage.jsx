@@ -64,11 +64,10 @@ export default function PaymentLinksPage() {
     const fetchData = async () => {
       try {
         const [linksRes, statsRes] = await Promise.all([
-          paymentLinksAPI.getAll(),
+          paymentLinksAPI.getAll(searchQuery || undefined),
           paymentLinksAPI.getStats()
         ]);
         setLinks(linksRes.data.links);
-        setFilteredLinks(linksRes.data.links);
         setStats(statsRes.data);
       } catch (error) {
         console.error('Failed to fetch payment links:', error);
@@ -78,21 +77,11 @@ export default function PaymentLinksPage() {
     };
 
     fetchData();
-  }, []);
+  }, [searchQuery]);
 
-  // Apply filters
+  // Apply client-side filters (status, payment mode, date)
   useEffect(() => {
     let filtered = [...links];
-    
-    // Search filter
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(link => 
-        link.id.toLowerCase().includes(query) ||
-        link.customer.toLowerCase().includes(query) ||
-        link.customer_email.toLowerCase().includes(query)
-      );
-    }
     
     // Status filter
     if (statusFilter !== 'all') {
