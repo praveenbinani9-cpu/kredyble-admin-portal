@@ -22,7 +22,15 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 # JWT Configuration
-JWT_SECRET = os.environ.get('JWT_SECRET', 'kredyble-secret-key-2024')
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+JWT_SECRET = os.environ.get('JWT_SECRET')
+
+if not JWT_SECRET:
+    raise ValueError("JWT_SECRET is not set. Please configure it in .env file")
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION_HOURS = 24
 
@@ -30,7 +38,9 @@ JWT_EXPIRATION_HOURS = 24
 security = HTTPBearer()
 
 # Create the main app
-app = FastAPI()
+app = FastAPI(
+    root_path="/proxy/8000"
+)
 api_router = APIRouter(prefix="/api")
 
 # ==================== MODELS ====================
