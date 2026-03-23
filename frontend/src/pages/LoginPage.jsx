@@ -71,6 +71,7 @@ export default function LoginPage() {
                 required
                 data-testid="password-input"
               />
+            </div>
             
             <Button 
               type="submit" 
