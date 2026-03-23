@@ -71,8 +71,6 @@ export default function LoginPage() {
                 required
                 data-testid="password-input"
               />
-              <p className="text-xs text-slate-500">Demo: Use any email with password "admin123"</p>
-            </div>
             
             <Button 
               type="submit" 
