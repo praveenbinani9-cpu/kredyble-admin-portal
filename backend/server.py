@@ -436,9 +436,13 @@ async def login(request: LoginRequest):
             "role": "admin"
         }
     }
-    class ForgotPasswordRequest:
+class ForgotPasswordRequest:
         email: str
-
+    
+class ResetPasswordRequest(BaseModel):
+        token: str
+        new_password: str
+    
 @api_router.post("/auth/forgot-password")
 async def forgot_password(data: ForgotPasswordRequest):
     token = jwt.encode(
