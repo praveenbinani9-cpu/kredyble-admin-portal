@@ -447,6 +447,13 @@ class ResetPasswordRequest(BaseModel):
     
 @api_router.post("/auth/forgot-password")
 async def forgot_password(data: ForgotPasswordRequest):
+   
+    # check if user exists
+    user = await db.users.find_one({"email": data.email})
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
     token = jwt.encode(
         {
             "email": data.email,
