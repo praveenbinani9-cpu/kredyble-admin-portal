@@ -437,7 +437,7 @@ async def login(request: LoginRequest):
         }
     }
     class ForgotPasswordRequest(BaseModel):
-    email: str
+        email: str
 
 class ResetPasswordRequest(BaseModel):
     token: str
