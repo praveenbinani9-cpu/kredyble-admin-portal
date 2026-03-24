@@ -436,12 +436,14 @@ async def login(request: LoginRequest):
             "role": "admin"
         }
     }
-class ForgotPasswordRequest:
-        email: str
-    
+from pydantic import BaseModel
+
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
 class ResetPasswordRequest(BaseModel):
-        token: str
-        new_password: str
+    token: str
+    new_password: str
     
 @api_router.post("/auth/forgot-password")
 async def forgot_password(data: ForgotPasswordRequest):
