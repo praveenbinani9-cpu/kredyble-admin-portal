@@ -473,6 +473,12 @@ async def reset_password(data: ResetPasswordRequest):
     try:
         payload = jwt.decode(data.token, JWT_SECRET, algorithms=["HS256"])
         email = payload["email"]
+        await db.users.update_one(
+            {"email": email},
+            {"$set": {"password": data.new_password}}
+        )
+
+        return {"message": "Password reset successful"}
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=400, detail="Token expired")
     except:
