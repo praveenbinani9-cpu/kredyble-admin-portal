@@ -436,7 +436,46 @@ async def login(request: LoginRequest):
             "role": "admin"
         }
     }
+    class ForgotPasswordRequest(BaseModel):
+    email: str
 
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
+    @api_router.post("/auth/forgot-password")
+async def forgot_password(data: ForgotPasswordRequest):
+    # ⚠️ TEMP: since your login is mock, we skip DB check
+    # (your current login allows any email)
+
+    token = jwt.encode(
+        {
+            "email": data.email,
+            "exp": datetime.utcnow() + timedelta(minutes=15)
+        },
+        JWT_SECRET,
+        algorithm="HS256"
+    )
+
+    reset_link = f"https://admin.kredyble.com/reset-password?token={token}"
+
+    print("RESET LINK:", reset_link)  # for testing
+
+    return {"message": "Reset link generated", "link": reset_link}
+    @api_router.post("/auth/reset-password")
+async def reset_password(data: ResetPasswordRequest):
+    try:
+        payload = jwt.decode(data.token, JWT_SECRET, algorithms=["HS256"])
+        email = payload["email"]
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=400, detail="Token expired")
+    except:
+        raise HTTPException(status_code=400, detail="Invalid token")
+
+    # ⚠️ TEMP: since no real DB password system yet
+    print(f"Password reset for {email}: {data.new_password}")
+
+    return {"message": "Password reset successful (mock)"}
+    
 @api_router.get("/auth/verify")
 async def verify_auth(payload: dict = Depends(verify_token)):
     return {"valid": True, "user": payload}
