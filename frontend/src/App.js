@@ -20,6 +20,7 @@ import PGChargesPage from "./pages/PGChargesPage";
 import GSTPage from "./pages/GSTPage";
 import RiskPage from "./pages/RiskPage";
 import SupportPage from "./pages/SupportPage";
+import ForgotPassword from "./pages/ForgotPassword";
 
 function App() {
   return (
