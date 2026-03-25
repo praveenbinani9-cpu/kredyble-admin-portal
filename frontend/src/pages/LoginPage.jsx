@@ -91,7 +91,9 @@ export default function LoginPage() {
           </form>
           
           <div className="mt-6 text-center text-sm text-slate-500">
-            <a href="#" className="hover:text-slate-900">Forgot password?</a>
+            <a href="/forgot-password" className="hover:text-slate-900">
+             Forgot password?
+            </a>
           </div>
         </CardContent>
       </Card>
