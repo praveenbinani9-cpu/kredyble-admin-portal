@@ -26,12 +26,12 @@ def send_otp_email(to_email, otp):
     payload = {
         "to": [
             {
-                "email": to_email,
+                "email": user_email,
                 "name": "Admin"
             }
         ],
         "from": {
-            "email": "admin@kredyble.com",
+            "email": "hello@kredyble.com",
             "name": "Kredyble"
         },
         "domain": "kredyble.com",
