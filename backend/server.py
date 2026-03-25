@@ -39,7 +39,7 @@ def send_otp_email(to_email, otp):
             "name": "Kredyble"
         },
         "domain": "kredyble.com",
-        "mail_type_id": "admin_password_2",
+        "template_id": "admin_password_2",
         "variables": {
             "OTP": otp
         }
