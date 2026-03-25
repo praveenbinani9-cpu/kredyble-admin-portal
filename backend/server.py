@@ -472,22 +472,34 @@ async def forgot_password(data: ForgotPasswordRequest):
 async def reset_password(data: ResetPasswordRequest):
     try:
         payload = jwt.decode(data.token, JWT_SECRET, algorithms=["HS256"])
-        email = payload["email"]
-        await db.users.update_one(
+        email = payload["email"].strip().lower()
+
+        # DEBUG
+        print("RESET EMAIL:", email)
+
+        # UPDATE
+        result = await db.users.update_one(
             {"email": email},
             {"$set": {"password": data.new_password}}
         )
 
+        print("MATCHED:", result.matched_count)
+        print("MODIFIED:", result.modified_count)
+
+        # VERIFY AFTER UPDATE
+        user = await db.users.find_one({"email": email})
+        print("DB AFTER UPDATE:", user)
+
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="User not found")
+
         return {"message": "Password reset successful"}
+
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=400, detail="Token expired")
+
     except:
         raise HTTPException(status_code=400, detail="Invalid token")
-
-    # ⚠️ TEMP: since no real DB password system yet
-    print(f"Password reset for {email}: {data.new_password}")
-
-    return {"message": "Password reset successful (mock)"}
     
 @api_router.get("/auth/verify")
 async def verify_auth(payload: dict = Depends(verify_token)):
