@@ -7,21 +7,26 @@ export default function ForgotPassword() {
   const [password, setPassword] = useState("");
 
   const sendOtp = async () => {
-    try {
-      await fetch("https://kredyble-admin-portal.onrender.com/forgot-password", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
+  if (!email) {
+    alert("Please enter email");
+    return;
+  }
 
-      alert("OTP sent");
-      setStep(2);
-    } catch (err) {
-      alert("Error sending OTP");
-    }
-  };
+  try {
+    await fetch("https://YOUR_BACKEND_URL/forgot-password", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    alert("OTP sent");
+    setStep(2);
+  } catch (err) {
+    alert("Error sending OTP");
+  }
+};
 
   const resetPassword = async () => {
     try {
