@@ -13,7 +13,15 @@ from datetime import datetime, timezone, timedelta
 import jwt
 import random
 
-print("🔥 VERSION 2 CODE RUNNING 🔥")
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def hash_password(password: str):
+    return pwd_context.hash(password)
+
+def verify_password(plain_password: str, hashed_password: str):
+    return pwd_context.verify(plain_password, hashed_password)
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -432,7 +440,7 @@ async def login(request: LoginRequest):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     # Check password
-    if request.password != user["password"]:
+    if not verify_password(request.password, user["password"]):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     # Generate token
@@ -492,7 +500,7 @@ async def reset_password(data: ResetPasswordRequest):
         # UPDATE
         result = await db.users.update_one(
             {"email": email},
-            {"$set": {"password": data.new_password}}
+            {"$set": {"password": hash_password(data.new_password)}}
         )
 
         print("MATCHED:", result.matched_count)
