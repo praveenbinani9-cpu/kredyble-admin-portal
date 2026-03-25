@@ -30,7 +30,7 @@ def send_otp_email(to_email, otp):
     payload = {
         "to": [
             {
-                "email": user_email,
+                "email": to_email,
                 "name": "Admin"
             }
         ],
@@ -45,39 +45,8 @@ def send_otp_email(to_email, otp):
         }
     }
 
-    response = requests.post(url, headers=headers, json=payload)
-    print("MSG91 RESPONSE:", response.text)
-
-
 def generate_otp():
     return str(random.randint(100000, 999999))
-
-
-def send_otp_email(to_email, otp):
-    url = "https://control.msg91.com/api/v5/email/send"
-
-    headers = {
-        "authkey": "468144AyiRgR3xVK6s698c1622P1",
-        "Content-Type": "application/json"
-    }
-
-    payload = {
-        "to": [
-            {
-                "email": to_email,
-                "name": "Admin"
-            }
-        ],
-        "from": {
-            "email": "admin@kredyble.com",
-            "name": "Kredyble"
-        },
-        "domain": "kredyble.com",
-        "mail_type_id": "admin_password_2",
-        "variables": {
-            "OTP": otp
-        }
-    }
 
     response = requests.post(url, headers=headers, json=payload)
     print("MSG91 RESPONSE:", response.text)
