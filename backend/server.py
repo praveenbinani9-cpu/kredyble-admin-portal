@@ -9,9 +9,74 @@ from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional
 import uuid
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta
 import jwt
 import random
+import requests
+
+def send_otp_email(to_email, otp):
+    url = "https://control.msg91.com/api/v5/email/send"
+
+
+    headers = {
+        "authkey": os.getenv("MSG91_AUTH_KEY"),
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "to": [
+            {
+                "email": to_email,
+                "name": "Admin"
+            }
+        ],
+        "from": {
+            "email": "admin@kredyble.com",
+            "name": "Kredyble"
+        },
+        "domain": "kredyble.com",
+        "mail_type_id": "admin_password_2",
+        "variables": {
+            "OTP": otp
+        }
+    }
+
+    response = requests.post(url, headers=headers, json=payload)
+    print("MSG91 RESPONSE:", response.text)
+
+
+def generate_otp():
+    return str(random.randint(100000, 999999))
+
+
+def send_otp_email(to_email, otp):
+    url = "https://control.msg91.com/api/v5/email/send"
+
+    headers = {
+        "authkey": "468144AyiRgR3xVK6s698c1622P1",
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "to": [
+            {
+                "email": to_email,
+                "name": "Admin"
+            }
+        ],
+        "from": {
+            "email": "admin@kredyble.com",
+            "name": "Kredyble"
+        },
+        "domain": "kredyble.com",
+        "mail_type_id": "admin_password_2",
+        "variables": {
+            "OTP": otp
+        }
+    }
+
+    response = requests.post(url, headers=headers, json=payload)
+    print("MSG91 RESPONSE:", response.text)
 
 from passlib.context import CryptContext
 
@@ -473,7 +538,29 @@ async def forgot_password(data: ForgotPasswordRequest):
 
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-        
+    
+    # 2. Generate OTP
+    otp = generate_otp()
+    expiry = datetime.utcnow() + timedelta(minutes=10)
+
+    # 3. Store OTP in DB
+    await db.users.update_one(
+        {"email": email},
+        {
+            "$set": {
+                "otp": otp,
+                "otp_expiry": expiry
+            }
+        }
+    )
+
+    # 4. Send OTP via MSG91
+    send_otp_email(email, otp)
+    
+    print("OTP:", otp)
+
+    return {"message": "OTP sent successfully"}
+    
     token = jwt.encode(
         {
             "email": data.email,
