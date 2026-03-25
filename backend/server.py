@@ -422,20 +422,30 @@ def generate_mock_risk_alerts(count: int = 10):
 
 @api_router.post("/auth/login", response_model=LoginResponse)
 async def login(request: LoginRequest):
-    # Mock authentication - accept any email with password "admin123"
-    if request.password != "admin123":
+
+    email = request.email.strip().lower()
+
+    # Find user in DB
+    user = await db.users.find_one({"email": email})
+
+    if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    
-    user_id = str(uuid.uuid4())
-    token = create_token(user_id, request.email)
-    
+
+    # Check password
+    if request.password != user["password"]:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    # Generate token
+    user_id = str(user["_id"])
+    token = create_token(user_id, email)
+
     return {
         "token": token,
         "user": {
             "id": user_id,
-            "email": request.email,
-            "name": request.email.split("@")[0].title(),
-            "role": "admin"
+            "email": user["email"],
+            "name": email.split("@")[0].title(),
+            "role": user.get("role", "admin")
         }
     }
 from pydantic import BaseModel
