@@ -23,7 +23,7 @@ export default function ForgotPassword() {
     setIsLoading(true);
 
     try {
-      await fetch("https://kredyble-admin-portal.onrender.com/forgot-password", {
+      await fetch("https://kredyble-admin-portal.onrender.com/auth/forgot-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
