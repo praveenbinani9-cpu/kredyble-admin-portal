@@ -45,11 +45,11 @@ def send_otp_email(to_email, otp):
         }
     }
 
-def generate_otp():
-    return str(random.randint(100000, 999999))
-
     response = requests.post(url, headers=headers, json=payload)
     print("MSG91 RESPONSE:", response.text)
+
+def generate_otp():
+    return str(random.randint(100000, 999999))
 
 from passlib.context import CryptContext
 
