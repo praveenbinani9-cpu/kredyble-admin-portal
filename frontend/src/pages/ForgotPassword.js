@@ -23,7 +23,7 @@ export default function ForgotPassword() {
     setIsLoading(true);
 
     try {
-      await fetch("https://kredyble-admin-portal.onrender.com/auth/forgot-password", {
+      await fetch("https://kredyble-admin-portal.onrender.com/proxy/8000/api/auth/forgot-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -49,7 +49,7 @@ export default function ForgotPassword() {
     setIsLoading(true);
 
     try {
-      await fetch("https://kredyble-admin-portal.onrender.com/auth/reset-password", {
+      await fetch("https://kredyble-admin-portal.onrender.com/proxy/8000/api/auth/reset-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
