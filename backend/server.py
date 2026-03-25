@@ -13,7 +13,11 @@ from datetime import datetime, timedelta
 import jwt
 import random
 import requests
+from pydantic import BaseModel
 
+class ForgotRequest(BaseModel):
+    email: str
+    
 def send_otp_email(to_email, otp):
     url = "https://control.msg91.com/api/v5/email/send"
 
@@ -532,9 +536,10 @@ class ResetPasswordRequest(BaseModel):
     
 @api_router.post("/auth/forgot-password")
 async def forgot_password(data: ForgotPasswordRequest):
-   
-    # check if user exists
-    user = await db.users.find_one({"email": data.email})
+
+    email = data.email   # ✅ NOW email exists
+
+    user = await db.users.find_one({"email": email})
 
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
