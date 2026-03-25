@@ -13,6 +13,8 @@ export default function ForgotPassword() {
   const [isLoading, setIsLoading] = useState(false);
 
   const sendOtp = async () => {
+    console.log("SEND OTP CLICKED");
+    
     if (!email) {
       alert("Please enter email");
       return;
