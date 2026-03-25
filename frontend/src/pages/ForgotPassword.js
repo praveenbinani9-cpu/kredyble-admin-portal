@@ -97,7 +97,7 @@ export default function ForgotPassword() {
                 />
               </div>
 
-              <Button className="w-full" onClick={sendOtp} disabled={isLoading}>
+              <Button type="button" className="w-full" onClick={sendOtp} disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
