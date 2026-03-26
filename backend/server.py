@@ -588,9 +588,10 @@ async def reset_password(data: ResetPasswordRequest):
 
         if result.matched_count == 0:
             raise HTTPException(status_code=404, detail="User not found")
-
+ 
         return {"message": "Password reset successful"}
-
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
     
 @api_router.get("/auth/verify")
 async def verify_auth(payload: dict = Depends(verify_token)):
