@@ -100,11 +100,6 @@ class LoginRequest(BaseModel):
 class LoginResponse(BaseModel):
     token: str
     user: dict
-
-class ResetPasswordRequest(BaseModel):
-    email: str
-    otp: str
-    new_password: str
     
 class UserResponse(BaseModel):
     id: str
@@ -505,7 +500,8 @@ class ForgotPasswordRequest(BaseModel):
     email: str
 
 class ResetPasswordRequest(BaseModel):
-    token: str
+    email: str
+    otp: str
     new_password: str
     
 @api_router.post("/auth/forgot-password")
