@@ -577,7 +577,7 @@ async def reset_password(data: ResetPasswordRequest):
         result = await db.users.update_one(
             {"email": email},
             {
-                "$set": {"password": hash_password(data.new_password)}
+                "$set": {"password": hash_password(data.new_password)},
                 "$unset": {"otp": ""}
             }
         )
