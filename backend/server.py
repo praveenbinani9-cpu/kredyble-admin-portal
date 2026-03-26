@@ -19,8 +19,7 @@ class ForgotRequest(BaseModel):
     email: str
     
 def send_otp_email(to_email, otp):
-    url = "https://control.msg91.com/api/v5/email/send"
-
+    url = "https://api.msg91.com/api/v5/email/send"   # ✅ FIXED
 
     headers = {
         "authkey": os.getenv("MSG91_AUTH_KEY"),
@@ -41,12 +40,15 @@ def send_otp_email(to_email, otp):
         "domain": "kredyble.com",
         "template_id": "admin_password_2",
         "variables": {
-            "OTP": otp
+            "otp": otp   # ✅ lower-case (very important)
         }
     }
 
     response = requests.post(url, headers=headers, json=payload)
+
     print("MSG91 RESPONSE:", response.text)
+
+    return response
 
 def generate_otp():
     return str(random.randint(100000, 999999))
@@ -533,23 +535,8 @@ async def forgot_password(data: ForgotPasswordRequest):
     send_otp_email(email, otp)
     
     print("OTP:", otp)
-
-    return {"message": "OTP sent successfully"}
     
-    token = jwt.encode(
-        {
-            "email": data.email,
-            "exp": datetime.utcnow() + timedelta(minutes=15)
-        },
-        JWT_SECRET,
-        algorithm="HS256"
-    )
-
-    reset_link = f"https://admin.kredyble.com/reset-password?token={token}"
-
-    print("RESET LINK:", reset_link)
-
-    return {"message": "Reset link generated", "link": reset_link}    
+    return {"message": "OTP sent successfully"}    
 
 @api_router.post("/auth/reset-password")
 async def reset_password(data: ResetPasswordRequest):
