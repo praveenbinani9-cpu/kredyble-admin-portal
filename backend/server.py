@@ -101,6 +101,11 @@ class LoginResponse(BaseModel):
     token: str
     user: dict
 
+class ResetPasswordRequest(BaseModel):
+    email: str
+    otp: str
+    new_password: str
+    
 class UserResponse(BaseModel):
     id: str
     email: str
@@ -549,38 +554,43 @@ async def forgot_password(data: ForgotPasswordRequest):
     print("RESET LINK:", reset_link)
 
     return {"message": "Reset link generated", "link": reset_link}    
+
 @api_router.post("/auth/reset-password")
 async def reset_password(data: ResetPasswordRequest):
     try:
-        payload = jwt.decode(data.token, JWT_SECRET, algorithms=["HS256"])
-        email = payload["email"].strip().lower()
+        email = data.email.strip().lower()
+        otp = data.otp
 
         # DEBUG
         print("RESET EMAIL:", email)
+        
+        # VERIFY AFTER UPDATE
+        user = await db.users.find_one({
+            "email": email,
+            "otp": otp
+        })
 
+        if not user:
+            raise HTTPException(status_code=400, detail="Invalid OTP")
+       
         # UPDATE
         result = await db.users.update_one(
             {"email": email},
-            {"$set": {"password": hash_password(data.new_password)}}
+            {
+                "$set": {"password": hash_password(data.new_password)}
+                "$unset": {"otp": ""}
+            }
         )
 
         print("MATCHED:", result.matched_count)
         print("MODIFIED:", result.modified_count)
-
-        # VERIFY AFTER UPDATE
-        user = await db.users.find_one({"email": email})
-        print("DB AFTER UPDATE:", user)
+ 
 
         if result.matched_count == 0:
             raise HTTPException(status_code=404, detail="User not found")
 
         return {"message": "Password reset successful"}
 
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=400, detail="Token expired")
-
-    except:
-        raise HTTPException(status_code=400, detail="Invalid token")
     
 @api_router.get("/auth/verify")
 async def verify_auth(payload: dict = Depends(verify_token)):
